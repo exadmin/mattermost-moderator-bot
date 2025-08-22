@@ -1,0 +1,1 @@
+Thanks to https://github.com/niallthomson/workshop-toolkit/blob/master/workshop-bot/src/main/java/com/devcodes/workshopkit/bot/MattermostBot.java

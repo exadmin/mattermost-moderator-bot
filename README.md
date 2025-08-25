@@ -6,3 +6,4 @@ Build on prod
 sudo docker build -t mbot:0.0.1 .
 ```
 
+sudo docker run mbot:0.0.1 -d

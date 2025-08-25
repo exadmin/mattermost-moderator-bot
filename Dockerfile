@@ -5,13 +5,13 @@ ENV WDIR=/tmp
 
 ADD pom.xml $WDIR/pom.xml
 ADD src $WDIR/src
-ADD settings.props $WDIR/settings.props
 
 WORKDIR $WDIR
 RUN mvn clean package assembly:single
 
 # RELEASE STAGE
 FROM eclipse-temurin:21-jre-alpine
+ADD settings.props /tmp/settings.props
 COPY --from=builder /tmp/target/mattermost-moderator-bot-*.jar /tmp/bot.jar
 WORKDIR /tmp
 

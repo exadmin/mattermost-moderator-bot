@@ -9,7 +9,7 @@ import java.io.IOException;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MattermostPost extends Post {
 
-    private static final ObjectMapper mapper = new ObjectMapper();;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     public MattermostPost() {
         super();

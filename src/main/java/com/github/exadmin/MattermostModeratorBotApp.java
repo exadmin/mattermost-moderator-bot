@@ -7,12 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MattermostModeratorBotApp  {
-    private static final String BOT_SELF_EMAIL = "moderator-bot@localhost"; // todo: move to settings later
-
     private static final Logger log = LoggerFactory.getLogger(MattermostModeratorBotApp.class);
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         // check if path to the settings file is provided
         if (args.length != 1) {
             log.error(

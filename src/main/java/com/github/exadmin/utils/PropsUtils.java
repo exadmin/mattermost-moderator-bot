@@ -57,7 +57,7 @@ public class PropsUtils {
     }
 
     private static String getCleanValue(String strValue) {
-        if (strValue == null) return strValue;
+        if (strValue == null) return null;
         return strValue.trim();
     }
 

@@ -5,6 +5,7 @@ import com.github.exadmin.aibot.mattermost.api.MattermostPost;
 import com.github.exadmin.aibot.mattermost.api.MattermostWebsocketDispatcher;
 import com.github.exadmin.aibot.mattermost.async.MatterMostAsyncClientFactory;
 import com.github.exadmin.aibot.mattermost.event.IMattermostEvent;
+import com.github.exadmin.utils.MiscUtils;
 import net.bis5.mattermost.client4.ApiResponse;
 import net.bis5.mattermost.model.Channel;
 import net.bis5.mattermost.model.Post;
@@ -19,9 +20,12 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TheBot extends MattermostEventListener {
     private static final Logger log = LoggerFactory.getLogger(TheBot.class);
 
-    private User meBotUser;
+    private User botUser;
+
+    /* caches can be unified - in case all IDs are unique - but currently not sure about that */
     private final Map<String, String> usersCache = new ConcurrentHashMap<>(); // cache for userId -> userEmail
     private final Map<String, String> channelsCache = new ConcurrentHashMap<>(); // cache for channelId -> channel name
+    private final Map<String, String> channelsWithBotCache = new ConcurrentHashMap<>(); // cache for bot_id + user_id -> channelId
 
     private final MatterMostAsyncClientFactory mmClientFactory = new MatterMostAsyncClientFactory();
     private final ReentrantLock lock = new ReentrantLock();
@@ -52,42 +56,42 @@ public class TheBot extends MattermostEventListener {
     @Override
     public void onMessage(Post post) {
         // test connection & remember bot-id
-        if (meBotUser == null) {
-            fetchThisBotData();
+        ensureBotDataThreadSafely();
+
+        // if sender - is the bot itself - then ignore this post
+        final String senderId = post.getUserId();
+        if (botUser.getId().equals(senderId)) return;
+
+        // check if message was sent directly to the bot - then reply with current time string
+        final String botAndUserChannelId = fetchChannelIdForBotAndUser(botUser, senderId);
+        if (post.getChannelId().equals(botAndUserChannelId)) {
+            sendMessage(botAndUserChannelId, "Hello! The bot is functioning well. Server time is " + MiscUtils.getCurrentTimeStr());
+            return;
         }
 
-        String channelId = post.getChannelId();
-        String channelName = fetchChannelName(channelId);
+        final String channelName = fetchChannelName(post.getChannelId());
 
         // check if channel belongs to list of monitored channels
         if (appContext.getMonitoredChannels().isEmpty() /*trigger in each channel*/ || appContext.getMonitoredChannels().contains(channelName)) {
 
             // if message is sent by allowed user - then do nothing
-            String senderId = post.getUserId();
             String senderEmail = fetchUserEmail(senderId);
-
             if (appContext.getAllowedEmails().contains(senderEmail)) return;
 
             // otherwise - delete message and send it back to the sender (if it's valuable)
             ApiResponse<Boolean> booleanApiResponse = mmClientFactory.getClient().deletePost(post.getId());
             log.info("Deleting post from user '{}', in channel '{}', result = {}", senderEmail, channelName, booleanApiResponse.readEntity());
 
-            ApiResponse<Channel> channelApiResponse = mmClientFactory.getClient().createDirectChannel(senderId, meBotUser.getId());
-            Channel channel = channelApiResponse.readEntity();
 
-            Post reply = new MattermostPost();
-            reply.setMessage("Your message in a channel '" + channelName + "' was deleted by moderator-bot due to rules of administrator.\n" +
+            sendMessage(botAndUserChannelId, "Your message in a channel '" + channelName + "' was deleted by moderator-bot due to rules of channel administrator.\n" +
                     "Here is your original text:\n\n" +
                     post.getMessage());
-
-            reply.setChannelId(channel.getId());
-            mmClientFactory.getClient().createPost(reply);
         }
     }
 
     @Override
     public void onOther(IMattermostEvent post) {
-        // log.debug("Other message: {}", post);
+        log.trace("Other message: {}", post);
     }
 
     private String fetchUserEmail(final String userId) {
@@ -115,16 +119,35 @@ public class TheBot extends MattermostEventListener {
         return channelName;
     }
 
-    private void fetchThisBotData() {
-        try {
-            lock.lock();
-            if (meBotUser == null) {
-                ApiResponse<User> meApiResponse = mmClientFactory.getClient().getMe();
-                meBotUser = meApiResponse.readEntity();
-            }
-        } finally {
-            lock.unlock();
-        }
+    private String fetchChannelIdForBotAndUser(final User bot, final String userId) {
+        String commonId = bot.getId() + "_" + userId;
+        String cachedValue = channelsWithBotCache.get(commonId);
+        if (cachedValue != null) return cachedValue;
 
+        ApiResponse<Channel> channelApiResponse = mmClientFactory.getClient().createDirectChannel(bot.getId(), userId);
+        Channel channel = channelApiResponse.readEntity();
+        channelsWithBotCache.put(commonId, channel.getId());
+        return channel.getId();
+    }
+
+    private void ensureBotDataThreadSafely() {
+        if (botUser == null) {
+            lock.lock();
+            try {
+                if (botUser == null) {
+                    ApiResponse<User> meApiResponse = mmClientFactory.getClient().getMe();
+                    botUser = meApiResponse.readEntity();
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    private void sendMessage(String destChannelId, String msg) {
+        Post reply = new MattermostPost();
+        reply.setMessage(msg);
+        reply.setChannelId(destChannelId);
+        mmClientFactory.getClient().createPost(reply);
     }
 }

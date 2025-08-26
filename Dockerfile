@@ -11,8 +11,7 @@ RUN mvn clean package assembly:single
 
 # RELEASE STAGE
 FROM eclipse-temurin:21-jre-alpine
-ADD settings.props /tmp/settings.props
 COPY --from=builder /tmp/target/mattermost-moderator-bot-*.jar /tmp/bot.jar
 WORKDIR /tmp
 
-ENTRYPOINT ["java", "-jar", "bot.jar", "settings.props"]
+ENTRYPOINT ["java", "-jar", "bot.jar", "/tmp/settings.props"]

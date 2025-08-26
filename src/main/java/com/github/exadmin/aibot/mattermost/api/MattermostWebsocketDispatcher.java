@@ -2,6 +2,7 @@ package com.github.exadmin.aibot.mattermost.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.exadmin.aibot.mattermost.event.MattermostEvent;
+import com.github.exadmin.utils.MiscUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class MattermostWebsocketDispatcher {
 
     private final ObjectMapper mapper;
     private final WebSocketClient wsClient;
-    private long seq;
+    private long triesCount;
     private final MattermostEventListener listener;
     private boolean reconnect;
     private ExecutorService executorService;
@@ -34,12 +35,12 @@ public class MattermostWebsocketDispatcher {
         try {
             wsClient = new WebSocketClientImpl(new URI(protocol + "://" + host + "/api/v4/websocket"), headers, this);
         } catch (URISyntaxException e) {
-            log.error("Error while creating websocke", e);
+            log.error("Error while creating websocket", e);
             throw new IllegalArgumentException(e);
         }
 
         this.mapper = new ObjectMapper();
-        this.seq = 1;
+        this.triesCount = 5;
         this.listener = listener;
         this.reconnect = true;
     }
@@ -60,12 +61,17 @@ public class MattermostWebsocketDispatcher {
     }
 
     protected void onClose(int code, String reason, boolean remote) {
-        seq = 1;
+        triesCount--;
         log.warn("closed with exit code {}, additional info: {}", code, reason);
 
-        if (reconnect) {
-            log.info("Reconnecting...");
-            new Thread(() -> this.wsClient.reconnect()).start();
+        if (reconnect && triesCount > 0) {
+            log.info("Reconnecting in 5 seconds... Tries left = {}", triesCount);
+            MiscUtils.sleep(5000);
+
+            new Thread(this.wsClient::reconnect).start();
+        } else {
+            log.info("Terminating application");
+            System.exit(1);
         }
     }
 
@@ -74,15 +80,9 @@ public class MattermostWebsocketDispatcher {
 
         try {
             MattermostEvent message = mapper.readValue(messageString, MattermostEvent.class);
-
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onEvent(message);
-                }
-            });
+            executorService.submit(() -> listener.onEvent(message));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error while processing message", e);
         }
     }
 
@@ -91,7 +91,7 @@ public class MattermostWebsocketDispatcher {
     }
 
     private static class WebSocketClientImpl extends WebSocketClient {
-        MattermostWebsocketDispatcher callback;
+        final MattermostWebsocketDispatcher callback;
 
         public WebSocketClientImpl(URI serverUri, Map<String, String> httpHeaders, MattermostWebsocketDispatcher callback) {
             super(serverUri, httpHeaders);

@@ -54,7 +54,7 @@ As soon as properties file is ready - you can run bot application
 #### Using docker
 ```shell
     sudo docker build -t mbot:0.0.1 .
-    sudo dockerun --mount type=bind,source=/tmp/my_external_file_with.properties,target=/tmp/settings.props mbot:0.0.1 -d  
+    sudo docker run --mount type=bind,source=/tmp/my_external_file_with.properties,target=/tmp/settings.props mbot:0.0.1 -d  
 ```
 
 Note: target file "/tmp/settings.props" is a hardcoded path.

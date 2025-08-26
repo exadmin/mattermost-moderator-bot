@@ -12,12 +12,13 @@ public class MattermostModeratorBotApp  {
 
     public static void main(String[] args) {
         // check if path to the settings file is provided
-        if (args.length != 1) {
+        if (args.length == 0) {
             log.error(
                     """
                         Mandatory settings must be provided via properties file.
                         Application run command example: java -jar bot.jar ${PATH_TO_PROPERTIES_FILE}
-                        See parameters description at https://github.com/exadmin/mattermost-moderator-bot"""
+                        See parameters description at https://github.com/exadmin/mattermost-moderator-bot
+                        Current program arguments are """ + args
             );
 
             System.exit(1);

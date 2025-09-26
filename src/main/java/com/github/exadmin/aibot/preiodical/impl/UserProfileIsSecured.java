@@ -3,8 +3,8 @@ package com.github.exadmin.aibot.preiodical.impl;
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
 import com.github.exadmin.aibot.preiodical.APeriodicalDailyTask;
+import com.github.exadmin.aibot.report.MMReportStatus;
 import net.bis5.mattermost.model.User;
-import net.bis5.mattermost.model.UserList;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -14,13 +14,13 @@ import java.util.List;
  * For the red-members a github nickname is provided.
  */
 public class UserProfileIsSecured extends APeriodicalDailyTask {
-    private List<String> KNOWN_EMAILS_TO_IGNORE = List.of(
-            "adr@localhost",         // ADR bot
-                "tlt.ermakov@gmail.com", // deactivated account
-                "boards@localhost",      // bot
-                "calendar@localhost",    // bot
-                "calls@localhost",       // bot
-                "cncf_bot@localhost"     // bot
+    private List<String> DEACTIVATED_ACCOUNTS = List.of(
+                "tlt.ermakov@gmail.com",
+                "divy.tripathy@gmail.com",
+                "evg690@gmail.com",
+                "n.kannan200@gmail.com",
+                "pankratovsa@gmail.com",
+                "jackson.raj.anthony.raj@gmail.com"
             );
 
     public UserProfileIsSecured(MatterMostClientPomogator matterMostClient, AppContext appContext) {
@@ -34,12 +34,13 @@ public class UserProfileIsSecured extends APeriodicalDailyTask {
 
     @Override
     public String getName() {
-        return "User Profiles Secure settings";
+        return "Mattermost Profiles Email";
     }
 
     @Override
     public void runUnsafe() {
-        UserList userList = getMmClientPomogator().getAllUsers();
+        getReport().setStatus(MMReportStatus.RED);
+        List<User> userList = getMmClientPomogator().getAllUsers();
 
         int count = 0;
         int good  = 0;
@@ -54,10 +55,13 @@ public class UserProfileIsSecured extends APeriodicalDailyTask {
                 good++;
         }
 
+        getReport().setStatus(MMReportStatus.GREEN);
+        if (bad > 0) getReport().setStatus(MMReportStatus.YELLOW);
+
         getReport().addMsgToReport("All users are analyzed");
         getReport().addMsgToReport("Total count of users = " + count);
         getReport().addMsgToReport("Secured user profiles= " + good);
-        getReport().addMsgToReport("Insecured profiles   = " + bad);
+        getReport().addMsgToReport("Unsecured profiles   = " + bad);
         getReport().sendReport(getMmClientPomogator(), getAppContext());
     }
 
@@ -69,8 +73,9 @@ public class UserProfileIsSecured extends APeriodicalDailyTask {
         email = email.toLowerCase();
         if (email.endsWith("@netcracker.com")) return true;
         if (email.endsWith(".qubership@gmail.com")) return true;
+        if (email.endsWith("@localhost")) return true;
 
-        if (KNOWN_EMAILS_TO_IGNORE.contains(email)) return true;
+        if (DEACTIVATED_ACCOUNTS.contains(email)) return true;
 
         return false;
     }

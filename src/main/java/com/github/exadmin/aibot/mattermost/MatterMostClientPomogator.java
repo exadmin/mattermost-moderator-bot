@@ -3,11 +3,14 @@ package com.github.exadmin.aibot.mattermost;
 import com.github.exadmin.aibot.mattermost.api.MattermostPost;
 import net.bis5.mattermost.client4.ApiResponse;
 import net.bis5.mattermost.client4.MattermostClient;
+import net.bis5.mattermost.client4.Pager;
 import net.bis5.mattermost.model.Channel;
 import net.bis5.mattermost.model.Post;
 import net.bis5.mattermost.model.User;
 import net.bis5.mattermost.model.UserList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -77,8 +80,22 @@ public class MatterMostClientPomogator {
         mmClient.createPost(post);
     }
 
-    public UserList getAllUsers() {
-        ApiResponse<UserList> response = mmClient.getUsers();
-        return response.readEntity();
+    public List<User> getAllUsers() {
+        List<User> allUsers = new ArrayList<>();
+
+        int count = 1024; // number of requests to be sent to the MM-server
+        int page = 0;
+
+        while (count-- > 0) {
+            Pager pager = Pager.of(page++, 50);
+            ApiResponse<UserList> response = mmClient.getUsers(pager);
+
+            UserList tmpList = response.readEntity();
+            if (tmpList.isEmpty()) break;
+
+            allUsers.addAll(tmpList);
+        }
+
+        return allUsers;
     }
 }

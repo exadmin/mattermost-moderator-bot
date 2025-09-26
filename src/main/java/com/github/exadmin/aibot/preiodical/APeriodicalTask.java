@@ -28,7 +28,7 @@ public abstract class APeriodicalTask extends TimerTask {
      * Returns number of seconds between task executions
      * @return
      */
-    protected abstract int getPeriodOfRepeatingInSeconds();
+    protected abstract int getRepeatingPeriodInSeconds();
 
     /**
      * Main logic of the task must be implemented here.

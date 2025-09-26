@@ -21,7 +21,7 @@ public abstract class APeriodicalDailyTask extends APeriodicalTask {
     protected abstract LocalTime getTimeOfTheDayToRun();
 
     @Override
-    protected final int getPeriodOfRepeatingInSeconds() {
+    protected final int getRepeatingPeriodInSeconds() {
         return 86400;
     }
 

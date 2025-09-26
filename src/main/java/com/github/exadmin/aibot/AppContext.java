@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class AppContext {
+    private long startTime = System.currentTimeMillis();
+
     private String mmDomain;
     private String mmToken;
     private List<String> allowedEmails;
@@ -83,5 +85,9 @@ public class AppContext {
 
     public void setLocalDevMode(boolean localDevMode) {
         isLocalDevMode = localDevMode;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }

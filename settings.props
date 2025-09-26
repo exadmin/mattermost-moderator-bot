@@ -9,3 +9,9 @@ ALLOWED_EMAIL[2]=other-user@example.com
 MONITORED_CHANNEL[1]=newschannelname1
 MONITORED_CHANNEL[2]=newschannelname2
 # MONITORED_CHANNEL[2]=newschannelname3
+
+# List of emails - the users with will recieve reports from MM tasks
+USER_WITH_EMAIL_TO_REPORT_TO[1]=user@example.com
+
+# In case of local development - it is useful to set dev mode - which will trigger all tasks to be executed ASAP
+LOCAL_DEV_MODE=true

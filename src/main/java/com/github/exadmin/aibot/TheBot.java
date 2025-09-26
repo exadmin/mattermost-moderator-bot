@@ -1,10 +1,12 @@
 package com.github.exadmin.aibot;
 
+import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
 import com.github.exadmin.aibot.mattermost.api.MattermostEventListener;
 import com.github.exadmin.aibot.mattermost.api.MattermostPost;
 import com.github.exadmin.aibot.mattermost.api.MattermostWebsocketDispatcher;
 import com.github.exadmin.aibot.mattermost.async.MatterMostAsyncClientFactory;
 import com.github.exadmin.aibot.mattermost.event.IMattermostEvent;
+import com.github.exadmin.aibot.preiodical.PeriodicalTasksRegistry;
 import com.github.exadmin.utils.MiscUtils;
 import net.bis5.mattermost.client4.ApiResponse;
 import net.bis5.mattermost.model.Channel;
@@ -15,12 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class TheBot extends MattermostEventListener {
     private static final Logger log = LoggerFactory.getLogger(TheBot.class);
-
-    private User botUser;
 
     /* caches can be unified - in case all IDs are unique - but currently not sure about that */
     private final Map<String, String> usersCache = new ConcurrentHashMap<>(); // cache for userId -> userEmail
@@ -28,12 +27,12 @@ public class TheBot extends MattermostEventListener {
     private final Map<String, String> channelsWithBotCache = new ConcurrentHashMap<>(); // cache for bot_id + user_id -> channelId
 
     private final MatterMostAsyncClientFactory mmClientFactory = new MatterMostAsyncClientFactory();
-    private final ReentrantLock lock = new ReentrantLock();
     private final AppContext appContext;
 
     public TheBot(AppContext appContext) {
         this.appContext = appContext;
     }
+    private MatterMostClientPomogator mmPomogator;
 
     public void run() {
         String mmUrl = "https://" + appContext.getMmDomain();
@@ -43,6 +42,18 @@ public class TheBot extends MattermostEventListener {
 
         MattermostWebsocketDispatcher wsClient = new MattermostWebsocketDispatcher(appContext.getMmDomain(), true, appContext.getMmToken(), this);
         wsClient.init();
+
+        // schedule periodical tasks execution
+        int timeOutMilliSeconds = 10000;
+        while (mmClientFactory.getClient() == null && timeOutMilliSeconds > 0) {
+            MiscUtils.sleep(100);
+            timeOutMilliSeconds = timeOutMilliSeconds - 100;
+        }
+
+        mmPomogator = new MatterMostClientPomogator(mmClientFactory.getClient());
+
+        PeriodicalTasksRegistry tasksRegistry = new PeriodicalTasksRegistry(mmPomogator, appContext);
+        tasksRegistry.scheduleAndRunAsync(appContext.isLocalDevMode());
 
         try {
             Thread.sleep(Long.MAX_VALUE);
@@ -55,8 +66,8 @@ public class TheBot extends MattermostEventListener {
 
     @Override
     public void onMessage(Post post) {
-        // test connection & remember bot-id
-        ensureBotDataThreadSafely();
+
+        User botUser = mmPomogator.getBotProfile();
 
         // if sender - is the bot itself - then ignore this post
         final String senderId = post.getUserId();
@@ -128,20 +139,6 @@ public class TheBot extends MattermostEventListener {
         Channel channel = channelApiResponse.readEntity();
         channelsWithBotCache.put(commonId, channel.getId());
         return channel.getId();
-    }
-
-    private void ensureBotDataThreadSafely() {
-        if (botUser == null) {
-            lock.lock();
-            try {
-                if (botUser == null) {
-                    ApiResponse<User> meApiResponse = mmClientFactory.getClient().getMe();
-                    botUser = meApiResponse.readEntity();
-                }
-            } finally {
-                lock.unlock();
-            }
-        }
     }
 
     private void sendMessage(String destChannelId, String msg) {

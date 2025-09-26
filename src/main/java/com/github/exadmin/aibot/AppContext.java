@@ -1,5 +1,7 @@
 package com.github.exadmin.aibot;
 
+import net.bis5.mattermost.model.User;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +11,10 @@ public class AppContext {
     private String mmToken;
     private List<String> allowedEmails;
     private List<String> monitoredChannels;
+    private List<String> emailsToReportToUsersWith;
+    private User botUserProfile;
+    private boolean isLocalDevMode;
+
     private boolean successfullyLoaded;
 
     public String getMmDomain() {
@@ -37,13 +43,13 @@ public class AppContext {
     }
 
     public void addAllowedEmails(String allowedEmail) {
-        if (this.allowedEmails == null) this.allowedEmails = new ArrayList<>();
-        this.allowedEmails.add(allowedEmail);
+        if (allowedEmails == null) allowedEmails = new ArrayList<>();
+        allowedEmails.add(allowedEmail);
     }
 
     public void addMonitoredChannels(String monitoredChannel) {
-        if (this.monitoredChannels == null) this.monitoredChannels = new ArrayList<>();
-        this.monitoredChannels.add(monitoredChannel);
+        if (monitoredChannels == null) monitoredChannels = new ArrayList<>();
+        monitoredChannels.add(monitoredChannel);
     }
 
     public boolean isSuccessfullyLoaded() {
@@ -52,5 +58,30 @@ public class AppContext {
 
     public void setSuccessfullyLoaded(boolean successfullyLoaded) {
         this.successfullyLoaded = successfullyLoaded;
+    }
+
+    public void addEmailToReportToUserWith(String email) {
+        if (emailsToReportToUsersWith == null) emailsToReportToUsersWith = new ArrayList<>();
+        emailsToReportToUsersWith.add(email);
+    }
+
+    public List<String> getEmailsToReportToUsersWith() {
+        return emailsToReportToUsersWith;
+    }
+
+    public User getBotUserProfile() {
+        return botUserProfile;
+    }
+
+    public void setBotUserProfile(User botUserProfile) {
+        this.botUserProfile = botUserProfile;
+    }
+
+    public boolean isLocalDevMode() {
+        return isLocalDevMode;
+    }
+
+    public void setLocalDevMode(boolean localDevMode) {
+        isLocalDevMode = localDevMode;
     }
 }

@@ -2,11 +2,13 @@ package com.github.exadmin.aibot.preiodical.impl;
 
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
-import com.github.exadmin.aibot.preiodical.APeriodicalTask;
+import com.github.exadmin.aibot.preiodical.APeriodicalDailyTask;
 import com.github.exadmin.aibot.report.MMReportStatus;
 import com.github.exadmin.utils.MiscUtils;
 
-public class BotIsActive extends APeriodicalTask {
+import java.time.LocalTime;
+
+public class BotIsActive extends APeriodicalDailyTask {
 
     public BotIsActive(MatterMostClientPomogator mmClientPomogator, AppContext appContext) {
         super(mmClientPomogator, appContext);
@@ -18,8 +20,8 @@ public class BotIsActive extends APeriodicalTask {
     }
 
     @Override
-    protected int getRepeatingPeriodInSeconds() {
-        return 4 * 60 * 60; // 4 hours
+    protected LocalTime getTimeOfTheDayToRun() {
+        return LocalTime.of(8, 0, 0);
     }
 
     @Override

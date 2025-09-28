@@ -34,6 +34,10 @@ public class MatterMostClientPomogator {
         this.mmClient = mmClient;
     }
 
+    public MattermostClient getClient() {
+        return mmClient;
+    }
+
     private void ensureBotProfile() {
         if (botProfile == null) {
             lock.lock();

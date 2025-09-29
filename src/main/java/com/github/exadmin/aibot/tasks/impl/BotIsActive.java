@@ -21,7 +21,7 @@ public class BotIsActive extends ASameTimeEachDayTask {
 
     @Override
     protected LocalTime getTimeOfTheDayToRun() {
-        return LocalTime.of(8, 0, 0);
+        return LocalTime.of(12, 0, 0);
     }
 
     @Override

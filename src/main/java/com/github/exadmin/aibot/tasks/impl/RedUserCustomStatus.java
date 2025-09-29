@@ -3,15 +3,16 @@ package com.github.exadmin.aibot.tasks.impl;
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.config.RedTeamStorage;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
-import com.github.exadmin.aibot.tasks.APeriodBasedRepeatingTask;
 import com.github.exadmin.aibot.report.MMReportStatus;
-import net.bis5.mattermost.model.*;
+import com.github.exadmin.aibot.tasks.ASameTimeEachDayTask;
+import net.bis5.mattermost.model.User;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
-public class UsersStatus extends APeriodBasedRepeatingTask {
-    public UsersStatus(MatterMostClientPomogator mmClientPomogator, AppContext appContext) {
+public class RedUserCustomStatus extends ASameTimeEachDayTask {
+    public RedUserCustomStatus(MatterMostClientPomogator mmClientPomogator, AppContext appContext) {
         super(mmClientPomogator, appContext);
     }
 
@@ -21,8 +22,8 @@ public class UsersStatus extends APeriodBasedRepeatingTask {
     }
 
     @Override
-    protected int getRepeatingPeriodInSeconds() {
-        return 1000;
+    protected LocalTime getTimeOfTheDayToRun() {
+        return LocalTime.of(12, 5, 0);
     }
 
     @Override

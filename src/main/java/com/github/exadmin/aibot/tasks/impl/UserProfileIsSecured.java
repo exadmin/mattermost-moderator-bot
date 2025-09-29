@@ -29,7 +29,7 @@ public class UserProfileIsSecured extends ASameTimeEachDayTask {
 
     @Override
     protected LocalTime getTimeOfTheDayToRun() {
-        return LocalTime.of(17, 16, 15);
+        return LocalTime.of(12, 10, 0);
     }
 
     @Override

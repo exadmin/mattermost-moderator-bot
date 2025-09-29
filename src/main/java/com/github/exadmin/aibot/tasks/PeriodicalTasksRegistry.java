@@ -5,7 +5,7 @@ import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
 import com.github.exadmin.aibot.tasks.impl.BotIsActive;
 import com.github.exadmin.aibot.tasks.impl.LocalDevTerminator;
 import com.github.exadmin.aibot.tasks.impl.UserProfileIsSecured;
-import com.github.exadmin.aibot.tasks.impl.UsersStatus;
+import com.github.exadmin.aibot.tasks.impl.RedUserCustomStatus;
 import com.github.exadmin.utils.MiscUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class PeriodicalTasksRegistry {
         // register here all necessary tasks
         tasks.add(new UserProfileIsSecured(matterMostClient, appContext));
         tasks.add(new BotIsActive(matterMostClient, appContext));
-        tasks.add(new UsersStatus(matterMostClient, appContext));
+        tasks.add(new RedUserCustomStatus(matterMostClient, appContext));
 
         tasks.add(new LocalDevTerminator(matterMostClient, appContext));
     }

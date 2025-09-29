@@ -1,4 +1,4 @@
-package com.github.exadmin.aibot.preiodical;
+package com.github.exadmin.aibot.tasks;
 
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
@@ -12,7 +12,7 @@ import java.util.TimerTask;
  * An abstract class to represent task for periodical execution.
  * The period must be provided by getPeriodOfRepeatingInSeconds() method.
  */
-public abstract class APeriodicalTask extends TimerTask {
+public abstract class APeriodBasedRepeatingTask extends TimerTask {
     private final MatterMostClientPomogator mmClientPomogator;
     private final AppContext appContext;
     private final Logger log;
@@ -36,7 +36,7 @@ public abstract class APeriodicalTask extends TimerTask {
      */
     protected abstract void runUnsafe() throws Exception;
 
-    public APeriodicalTask(MatterMostClientPomogator mmClientPomogator, AppContext appContext) {
+    public APeriodBasedRepeatingTask(MatterMostClientPomogator mmClientPomogator, AppContext appContext) {
         this.mmClientPomogator = mmClientPomogator;
         this.appContext = appContext;
         this.log = LoggerFactory.getLogger(getClass());

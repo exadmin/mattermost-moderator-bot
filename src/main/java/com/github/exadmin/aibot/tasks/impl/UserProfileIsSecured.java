@@ -1,8 +1,8 @@
-package com.github.exadmin.aibot.preiodical.impl;
+package com.github.exadmin.aibot.tasks.impl;
 
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
-import com.github.exadmin.aibot.preiodical.APeriodicalDailyTask;
+import com.github.exadmin.aibot.tasks.ASameTimeEachDayTask;
 import com.github.exadmin.aibot.report.MMReportStatus;
 import net.bis5.mattermost.model.User;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * Checks that MM user profile has correct email assigned to the profile (from allowed domains only)
  * For the red-members a github nickname is provided.
  */
-public class UserProfileIsSecured extends APeriodicalDailyTask {
+public class UserProfileIsSecured extends ASameTimeEachDayTask {
     private List<String> DEACTIVATED_ACCOUNTS = List.of(
                 "tlt.ermakov@gmail.com",
                 "divy.tripathy@gmail.com",

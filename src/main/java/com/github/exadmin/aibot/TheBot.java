@@ -6,7 +6,7 @@ import com.github.exadmin.aibot.mattermost.api.MattermostPost;
 import com.github.exadmin.aibot.mattermost.api.MattermostWebsocketDispatcher;
 import com.github.exadmin.aibot.mattermost.async.MatterMostAsyncClientFactory;
 import com.github.exadmin.aibot.mattermost.event.IMattermostEvent;
-import com.github.exadmin.aibot.preiodical.PeriodicalTasksRegistry;
+import com.github.exadmin.aibot.tasks.PeriodicalTasksRegistry;
 import com.github.exadmin.utils.MiscUtils;
 import net.bis5.mattermost.client4.ApiResponse;
 import net.bis5.mattermost.model.Channel;

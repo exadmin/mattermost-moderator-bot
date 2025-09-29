@@ -1,14 +1,14 @@
-package com.github.exadmin.aibot.preiodical.impl;
+package com.github.exadmin.aibot.tasks.impl;
 
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
-import com.github.exadmin.aibot.preiodical.APeriodicalDailyTask;
+import com.github.exadmin.aibot.tasks.ASameTimeEachDayTask;
 import com.github.exadmin.aibot.report.MMReportStatus;
 import com.github.exadmin.utils.MiscUtils;
 
 import java.time.LocalTime;
 
-public class BotIsActive extends APeriodicalDailyTask {
+public class BotIsActive extends ASameTimeEachDayTask {
 
     public BotIsActive(MatterMostClientPomogator mmClientPomogator, AppContext appContext) {
         super(mmClientPomogator, appContext);

@@ -1,4 +1,4 @@
-package com.github.exadmin.aibot.preiodical;
+package com.github.exadmin.aibot.tasks;
 
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
@@ -8,8 +8,8 @@ import java.time.LocalTime;
 /**
  * An abstract class to call regular daily task.
  */
-public abstract class APeriodicalDailyTask extends APeriodicalTask {
-    public APeriodicalDailyTask(MatterMostClientPomogator matterMostClient, AppContext appContext) {
+public abstract class ASameTimeEachDayTask extends APeriodBasedRepeatingTask {
+    public ASameTimeEachDayTask(MatterMostClientPomogator matterMostClient, AppContext appContext) {
         super(matterMostClient, appContext);
     }
 

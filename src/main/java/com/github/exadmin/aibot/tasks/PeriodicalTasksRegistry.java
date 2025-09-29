@@ -1,9 +1,11 @@
-package com.github.exadmin.aibot.preiodical;
+package com.github.exadmin.aibot.tasks;
 
 import com.github.exadmin.aibot.AppContext;
 import com.github.exadmin.aibot.mattermost.MatterMostClientPomogator;
-import com.github.exadmin.aibot.preiodical.impl.BotIsActive;
-import com.github.exadmin.aibot.preiodical.impl.UserProfileIsSecured;
+import com.github.exadmin.aibot.tasks.impl.BotIsActive;
+import com.github.exadmin.aibot.tasks.impl.LocalDevTerminator;
+import com.github.exadmin.aibot.tasks.impl.UserProfileIsSecured;
+import com.github.exadmin.aibot.tasks.impl.UsersStatus;
 import com.github.exadmin.utils.MiscUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,7 @@ import java.util.Timer;
 public class PeriodicalTasksRegistry {
     private static final Logger log = LoggerFactory.getLogger(PeriodicalTasksRegistry.class);
 
-    private final List<APeriodicalTask> tasks;
+    private final List<APeriodBasedRepeatingTask> tasks;
     private final Timer timer;
 
     public PeriodicalTasksRegistry(MatterMostClientPomogator matterMostClient, AppContext appContext) {
@@ -25,6 +27,9 @@ public class PeriodicalTasksRegistry {
         // register here all necessary tasks
         tasks.add(new UserProfileIsSecured(matterMostClient, appContext));
         tasks.add(new BotIsActive(matterMostClient, appContext));
+        tasks.add(new UsersStatus(matterMostClient, appContext));
+
+        tasks.add(new LocalDevTerminator(matterMostClient, appContext));
     }
 
     /**
@@ -33,7 +38,7 @@ public class PeriodicalTasksRegistry {
      *                     this mode is used for local-development only - allowing not to wait real execution time
      */
     public void scheduleAndRunAsync(boolean runTasksASAP) {
-        for (APeriodicalTask task : tasks) {
+        for (APeriodBasedRepeatingTask task : tasks) {
             long delay = task.getDelayToStartTaskFromNowMillis();
             if (runTasksASAP) {
                 delay = MiscUtils.getRandomLong(5 * 1000L);

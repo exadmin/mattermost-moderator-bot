@@ -43,7 +43,8 @@ public abstract class ASameTimeEachDayTask extends APeriodBasedRepeatingTask {
 
         // calculate delay depending on the current time
         // if start-time is passed for today - then start ASAP, else calc difference to wait
-        if (startPosInSeconds < nowPosInSeconds) return 0;
-        return (startPosInSeconds - nowPosInSeconds) * 1000;
+        int deltaSecs = (startPosInSeconds - nowPosInSeconds);
+        if (deltaSecs < 0) deltaSecs = deltaSecs + 24 * 60 * 60;
+        return (deltaSecs) * 1000;
     }
 }

@@ -20,7 +20,8 @@ public class UserProfileIsSecured extends ASameTimeEachDayTask {
                 "evg690@gmail.com",
                 "n.kannan200@gmail.com",
                 "pankratovsa@gmail.com",
-                "jackson.raj.anthony.raj@gmail.com"
+                "jackson.raj.anthony.raj@gmail.com",
+                "snakersu@gmail.com"
             );
 
     public UserProfileIsSecured(MatterMostClientPomogator matterMostClient, AppContext appContext) {

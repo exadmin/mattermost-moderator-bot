@@ -41,7 +41,8 @@ public class RedUserCustomStatus extends ASameTimeEachDayTask {
                 if (properties != null) {
                     String customStatus = properties.get("customStatus");
                     if (customStatus != null) {
-                        statusCheckPassed = customStatus.contains("\"emoji\":\"red_circle\"");
+                        statusCheckPassed = customStatus.contains("\"emoji\":\"red_circle\"") ||
+                                customStatus.contains("\"emoji\":\"large_red_square\"");
                     }
                 }
 
